@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using BookStore.Data;
 using BookStore.Areas.Identity.Data;
+using Microsoft.AspNetCore.Identity.UI.Services;
+using BookStore.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 var connectionString = builder.Configuration.GetConnectionString("BookStoreContextConnection");
@@ -9,7 +11,7 @@ var connectionString = builder.Configuration.GetConnectionString("BookStoreConte
 builder.Services.AddDbContext<BookStoreContext>(options =>
     options.UseSqlServer(connectionString));
 
-builder.Services.AddDefaultIdentity<StoreUser>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
      .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<BookStoreContext>();
 
@@ -36,8 +38,24 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan = TimeSpan.FromMinutes(10);  //thời gian cookie hiệu lực
     options.SlidingExpiration = true;
 });
+builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
+var config = builder.Configuration;
+builder.Services.AddTransient<IEmailSender, EmailSender>();
+builder.Services.Configure<EmailSenderOptions>(options =>
+{
+    options.Host = config["MailSettings:Host"];
+    options.Port = int.Parse(config["MailSettings:Port"]);
+    options.User = config["MailSettings:User"];
+    options.Pass = config["MailSettings:Pass"];
+    options.Name = config["MailSettings:Name"];
+    options.Sender = config["MailSettings:User"];
+});
+
 
 var app = builder.Build();
+
+
 using (var scope = app.Services.CreateScope())
 {
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
@@ -71,8 +89,9 @@ app.UseAuthentication();;
 
 app.UseAuthorization();
 app.MapRazorPages();
+
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Books}/{action=List}/{id?}");
 
 app.Run();

@@ -50,8 +50,11 @@
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.ImgUrl)
         </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.ImgUrl)
+        <dt class = "col-sm-2">
+            @Html.DisplayNameFor(model => model.ImgUrl)
+        </dt>
+        <dd>
+            <img src="/../../@Model.ImgUrl" height="150" />
         </dd>
         <dt class = "col-sm-2">
             @Html.DisplayNameFor(model => model.Store)

@@ -25,10 +25,10 @@ namespace BookStore.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
-        private readonly SignInManager<StoreUser> _signInManager;
-        private readonly UserManager<StoreUser> _userManager;
-        private readonly IUserStore<StoreUser> _userStore;
-        private readonly IUserEmailStore<StoreUser> _emailStore;
+        private readonly SignInManager<AppUser> _signInManager;
+        private readonly UserManager<AppUser> _userManager;
+        private readonly IUserStore<AppUser> _userStore;
+        private readonly IUserEmailStore<AppUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         public List<SelectListItem> Roles { get; } = new List<SelectListItem>
@@ -39,9 +39,9 @@ namespace BookStore.Areas.Identity.Pages.Account
 
 
         public RegisterModel(
-            UserManager<StoreUser> userManager,
-            IUserStore<StoreUser> userStore,
-            SignInManager<StoreUser> signInManager,
+            UserManager<AppUser> userManager,
+            IUserStore<AppUser> userStore,
+            SignInManager<AppUser> signInManager,
             ILogger<RegisterModel> logger,
             IEmailSender emailSender)
         {
@@ -167,27 +167,27 @@ namespace BookStore.Areas.Identity.Pages.Account
             return Page();
         }
 
-        private StoreUser CreateUser()
+        private AppUser CreateUser()
         {
             try
             {
-                return Activator.CreateInstance<StoreUser>();
+                return Activator.CreateInstance<AppUser>();
             }
             catch
             {
-                throw new InvalidOperationException($"Can't create an instance of '{nameof(StoreUser)}'. " +
-                    $"Ensure that '{nameof(StoreUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(AppUser)}'. " +
+                    $"Ensure that '{nameof(AppUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }
 
-        private IUserEmailStore<StoreUser> GetEmailStore()
+        private IUserEmailStore<AppUser> GetEmailStore()
         {
             if (!_userManager.SupportsUserEmail)
             {
                 throw new NotSupportedException("The default UI requires a user store with email support.");
             }
-            return (IUserEmailStore<StoreUser>)_userStore;
+            return (IUserEmailStore<AppUser>)_userStore;
         }
     }
 }

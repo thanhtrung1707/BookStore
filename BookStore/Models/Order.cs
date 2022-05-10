@@ -11,7 +11,7 @@ namespace BookStore.Models
         public string UId { get; set; }
         public DateTime OrderDate { get; set; }
         public double Total { get; set; }
-        public StoreUser User { get; set; }
+        public AppUser User { get; set; }
         public virtual ICollection<OrderDetail>? OrderDetails { get; set; }
 
     }

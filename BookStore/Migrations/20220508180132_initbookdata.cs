@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace BookStore.Migrations
 {
-    public partial class CreateBookSchema : Migration
+    public partial class initbookdata : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -210,7 +210,7 @@ namespace BookStore.Migrations
                     Category = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Price = table.Column<double>(type: "float", nullable: false),
                     Desc = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ImgUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ImgUrl = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StoreId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -225,16 +225,46 @@ namespace BookStore.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "OrderDetail",
+                name: "Cart",
                 columns: table => new
                 {
-                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    UId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     BookIsbn = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Quantity = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
+                    table.PrimaryKey("PK_Cart", x => new { x.UId, x.BookIsbn });
+                    table.ForeignKey(
+                        name: "FK_Cart_AspNetUsers_UId",
+                        column: x => x.UId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Cart_Book_BookIsbn",
+                        column: x => x.BookIsbn,
+                        principalTable: "Book",
+                        principalColumn: "Isbn");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OrderDetail",
+                columns: table => new
+                {
+                    OrderId = table.Column<int>(type: "int", nullable: false),
+                    BookIsbn = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true)
+                },
+                constraints: table =>
+                {
                     table.PrimaryKey("PK_OrderDetail", x => new { x.OrderId, x.BookIsbn });
+                    table.ForeignKey(
+                        name: "FK_OrderDetail_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_OrderDetail_Book_BookIsbn",
                         column: x => x.BookIsbn,
@@ -294,6 +324,11 @@ namespace BookStore.Migrations
                 column: "StoreId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Cart_BookIsbn",
+                table: "Cart",
+                column: "BookIsbn");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Order_UId",
                 table: "Order",
                 column: "UId");
@@ -302,6 +337,11 @@ namespace BookStore.Migrations
                 name: "IX_OrderDetail_BookIsbn",
                 table: "OrderDetail",
                 column: "BookIsbn");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OrderDetail_UserId",
+                table: "OrderDetail",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Store_UId",
@@ -326,6 +366,9 @@ namespace BookStore.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetUserTokens");
+
+            migrationBuilder.DropTable(
+                name: "Cart");
 
             migrationBuilder.DropTable(
                 name: "OrderDetail");

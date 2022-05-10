@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BookStore.Data;
 
-public class BookStoreContext : IdentityDbContext<StoreUser>
+public class BookStoreContext : IdentityDbContext<AppUser>
 {
     public BookStoreContext(DbContextOptions<BookStoreContext> options)
           : base(options)
@@ -16,12 +16,14 @@ public class BookStoreContext : IdentityDbContext<StoreUser>
     public DbSet<Book> Book { get; set; }
     public DbSet<Order> Order { get; set; }
     public DbSet<OrderDetail> OrderDetail { get; set; }
+    public DbSet<Cart> Cart { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
-        builder.Entity<StoreUser>()
+        builder.Entity<AppUser>()
             .HasOne<Store>(au => au.Store)
-            .WithOne(st => st.Stores)
+            .WithOne(st => st.User)
             .HasForeignKey<Store>(st => st.UId);
 
         builder.Entity<Book>()
@@ -30,7 +32,7 @@ public class BookStoreContext : IdentityDbContext<StoreUser>
             .HasForeignKey(b => b.StoreId);
 
         builder.Entity<Order>()
-            .HasOne<StoreUser>(o => o.User)
+            .HasOne<AppUser>(o => o.User)
             .WithMany(ap => ap.Orders)
             .HasForeignKey(o => o.UId);
 
@@ -44,6 +46,19 @@ public class BookStoreContext : IdentityDbContext<StoreUser>
             .HasOne<Book>(od => od.Book)
             .WithMany(b => b.OrderDetails)
             .HasForeignKey(od => od.BookIsbn);
+     
+
+        builder.Entity<Cart>()
+            .HasKey(c => new { c.UId, c.BookIsbn });
+        builder.Entity<Cart>()
+            .HasOne<AppUser>(c => c.User)
+            .WithMany(u => u.Carts)
+            .HasForeignKey(c => c.UId);
+        builder.Entity<Cart>()
+            .HasOne<Book>(od => od.Book)
+            .WithMany(b => b.Carts)
+            .HasForeignKey(od => od.BookIsbn)
+            .OnDelete(DeleteBehavior.NoAction);
 
 
     }
