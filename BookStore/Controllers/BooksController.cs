@@ -27,30 +27,18 @@ namespace BookStore.Controllers
             _context = context;
             _userManager = userManager;
         }
-        public async Task<IActionResult> List(string searchString, int id = 0)
+        public async Task<IActionResult> List(string searchString, int id = 0 )
         {
             int numberOfRecords = await _context.Book.CountAsync();     //Count SQL
             int numberOfPages = (int)Math.Ceiling((double)numberOfRecords / _recordsPerPage);
             ViewBag.numberOfPages = numberOfPages;
             ViewBag.currentPage = id;
-            ViewData["CurrentFilter"] = searchString;
-            
-            if(searchString == null)
-            {
-                List<Book> books = await _context.Book
-                 .Skip(id * _recordsPerPage)  //Offset SQL
-                 .Take(_recordsPerPage)
-                 .ToListAsync();
-                return View(books);
-            }
-            else
-            {
-                List<Book> Books = await _context.Book
-               .Where(s => s.Title.Contains(searchString))
-               .ToListAsync();
-                return View(Books);
-            }
-           
+            ViewBag.CurrentFilter = searchString;
+            var books = _context.Book.Where(b => b.Title.Contains(searchString));
+            int numberOfFilteredBook = await books.CountAsync();
+            ViewBag.numberOfFilteredBook = numberOfFilteredBook;
+            return View(await books.ToListAsync());
+
 
         }
 
